@@ -1,6 +1,3 @@
-"""
-    Deprecated.  Now use sync_lib.py
-"""
 import os
 import argparse
 import fnmatch
@@ -40,49 +37,75 @@ def get_tagged_files(directory):
     return file_list    
 
 
-def export(src, dest):
+"""
+Sync source and destination files with a particular tag.  Source can introduce or remove
+files to destination.  Destination can copy back files that are modified, but not introduce
+files not present in source.
+TODO: make tag(s) an optional parameter
+"""
+def sync(src, dest, test=True):
     # Look through meta of every src item for copy tags
     export_files= get_tagged_files(src)
-    existing_files = get_tagged_files(dest)
+    destination_files = get_tagged_files(dest)
     print(f"{len(export_files)} Export files")
     print("++++++++++++++++++++++++++++++++")
-    print(f"{len(existing_files)} Existing files")
+    print(f"{len(destination_files)} Destination files")
     match_count = 0
-    need_update_count = 0
-    files_to_copy = []
+    new_count = 0
+    src_files_to_copy = []
+    dest_files_to_copy = []
 
     for a in export_files:
         is_matched = False
-        is_need_copy = True
-        for b in existing_files:
+
+        for b in destination_files:
             if a.basename == b.basename:
                 is_matched = True
-                print(f"Matched {a.basename} mod at: {a.get_mod_ts()} <<<>>> {b.get_mod_ts()}") 
+                match_count += 1
                 try:
-                    if a.get_mod_ts() > b.get_mod_ts():
-                        need_update_count += 1
-                        is_need_copy = True
-                        print(f"Needs Updated {a.basename} mod at: {a.get_mod_ts()} <<<>>> {b.get_mod_ts()}") 
-                    else:
-                        match_count += 1
-                        is_need_copy = False
-                    break
-                except:
-                    None
-        if not is_matched or is_need_copy:
-            files_to_copy.append(a)
-    print(f"Matched: {match_count} Need update: {need_update_count} Total to copy: {len(files_to_copy)}")
+                    a_mod_ts = a.get_mod_ts()
+                    b_mod_ts = b.get_mod_ts()
+                    if a_mod_ts == b_mod_ts :
+                        print(f"Matched {a.basename} mod at: {a.get_mod_ts()} <<<>>> {b.get_mod_ts()}") 
+
+                    elif a_mod_ts > b_mod_ts:
+                        src_files_to_copy.append(a)
+                        print(f"Needs Updated from Source {a.basename} mod at: {a.get_mod_ts()} <<<>>> {b.get_mod_ts()}")
+                        
+                    elif b_mod_ts > a_mod_ts:
+                        dest_files_to_copy.append(b)
+                        print(f"Needs Updated from Dest {a.basename} mod at: {a.get_mod_ts()} <<<>>> {b.get_mod_ts()}")
+                    
+                except Exception as e:
+                    print(e)
+                break 
+        if not is_matched:
+            new_count += 1
+            src_files_to_copy.append(a)
+        
+    print(f"""Total Matched: {match_count}
+        New from from source: {new_count}
+        Update from source: {len(src_files_to_copy) - new_count}
+        Update from dest: {len(dest_files_to_copy)}
+          """)
     
     copy_count = 0
-    for fi in files_to_copy:
-        shutil.copy2(fi.file, dest)
+    for fi in src_files_to_copy:
+        if not test:
+            shutil.copy2(fi.file, dest)
         # shutil.copy(fi.file, dest)
-
         copy_count += 1
-    print(f"Copy Count: {copy_count}")
+    print(f"Copy from source Count: {copy_count}")
+    
+    copy_count = 0
+    for fi in dest_files_to_copy:
+        if not test:
+            shutil.copy2(fi.file, src)
+        copy_count += 1
+    print(f"Copy from dest Count: {copy_count}")    
     # Now find files in the target that are longer tagged or existing in the source
     files_to_remove = []
-    for b in existing_files:
+    for b in destination_files:
         is_matched = False
         for a in export_files:
             if b.basename == a.basename:
@@ -92,7 +115,8 @@ def export(src, dest):
             files_to_remove.append(b)
     print(f"Files to remove {len(files_to_remove)}")
     for fi in files_to_remove:
-        os.remove(fi.file)
+        if not test:
+            os.remove(fi.file)
         print(f"Removed: {fi.file}")
         
 
@@ -100,6 +124,7 @@ def export(src, dest):
 parser = argparse.ArgumentParser("Media Exporter")
 parser.add_argument("--src", nargs=1, help="directory of media files to import")
 parser.add_argument("--dest", nargs=1, help="directory of destination media files")
+parser.add_argument("--test", action="store_true", help="no copy performed")
 args = parser.parse_args()
 
 
@@ -115,4 +140,4 @@ if os.path.isdir(args.dest[0]):
 else:
     raise Exception("Destination is not a valid directory")
 
-export(source_root,dest_root)
+sync(source_root,dest_root, test=args.test)
