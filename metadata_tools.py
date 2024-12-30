@@ -113,10 +113,13 @@ def print_all_file_metadata(file):
     for k in metadata.iptc_keys:
         t = metadata[k]
         print(k, t)
-    print("========= xmp ==========")    
+    print("========= xmp ==========") 
     for k in metadata.xmp_keys:
-        t = metadata[k]
-        print(k, t)
+        try:
+            t = metadata[k]
+            print(f"--->{k}<---  --->{t}<---")
+        except Exception as e:
+            print(f"failed to read {k} a type of {type(k)}")
 
 
 def print_all(root_dir):

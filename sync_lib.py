@@ -120,24 +120,23 @@ def sync(src, dest, test=True):
         print(f"Removed: {fi.file}")
         
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser("Media Exporter")
+    parser.add_argument("--src", nargs=1, help="directory of media files to import")
+    parser.add_argument("--dest", nargs=1, help="directory of destination media files")
+    parser.add_argument("--test", action="store_true", help="no copy performed")
+    args = parser.parse_args()
 
-parser = argparse.ArgumentParser("Media Exporter")
-parser.add_argument("--src", nargs=1, help="directory of media files to import")
-parser.add_argument("--dest", nargs=1, help="directory of destination media files")
-parser.add_argument("--test", action="store_true", help="no copy performed")
-args = parser.parse_args()
+    if os.path.isdir(args.src[0]):
+        source_root = args.src[0]
+        print(f"Process source {source_root}")
+    else:
+        raise Exception("Source is not a valid directory")
 
+    if os.path.isdir(args.dest[0]):
+        dest_root = args.dest[0]
+        print(f"Process dest {dest_root}")
+    else:
+        raise Exception("Destination is not a valid directory")
 
-if os.path.isdir(args.src[0]):
-    source_root = args.src[0]
-    print(f"Process source {source_root}")
-else:
-    raise Exception("Source is not a valid directory")
-
-if os.path.isdir(args.dest[0]):
-    dest_root = args.dest[0]
-    print(f"Process dest {dest_root}")
-else:
-    raise Exception("Destination is not a valid directory")
-
-sync(source_root,dest_root, test=args.test)
+    sync(source_root,dest_root, test=args.test)
