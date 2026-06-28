@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Result</h1>
+
+{% if error %}
+<div class="error-box">Error: {{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <h2>Output</h2>
+    <pre>{{ output if output else '(no output)' }}</pre>
+</div>
+
+<a href="{{ back }}" class="back-link">← Back</a>
+{% endblock %}

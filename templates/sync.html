@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Sync Library</h1>
+
+{% if error %}
+<div class="error-box">{{ error }}</div>
+{% endif %}
+
+<form method="POST" action="/sync" id="sync-form">
+    <div class="card">
+        <h2>Paths</h2>
+        <label for="src">Source (main library)</label>
+        <input type="text" id="src" name="src" placeholder="/home/you/Photos" autocomplete="off">
+        <label for="dest">Destination (export target)</label>
+        <input type="text" id="dest" name="dest" placeholder="/mnt/drive/PhotoStream" autocomplete="off">
+        <p class="hint">Syncs files tagged <strong>Photo Stream</strong> in DigiKam. Paths are remembered in your browser.</p>
+    </div>
+
+    <div class="card">
+        <h2>Options</h2>
+        <div class="checkbox-group">
+            <label class="checkbox-row">
+                <input type="checkbox" name="test" id="test" checked>
+                <span>Dry run<small>Preview changes, no files moved</small></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="submit">Run Sync</button>
+    </div>
+</form>
+
+<script>
+    const KEYS = {
+        src: 'mm_sync_src',
+        dest: 'mm_sync_dest',
+        test: 'mm_sync_test',
+    };
+
+    document.getElementById('src').value = localStorage.getItem(KEYS.src) || '';
+    document.getElementById('dest').value = localStorage.getItem(KEYS.dest) || '';
+    const savedTest = localStorage.getItem(KEYS.test);
+    if (savedTest !== null) document.getElementById('test').checked = savedTest === 'true';
+
+    document.getElementById('sync-form').addEventListener('submit', () => {
+        localStorage.setItem(KEYS.src, document.getElementById('src').value);
+        localStorage.setItem(KEYS.dest, document.getElementById('dest').value);
+        localStorage.setItem(KEYS.test, document.getElementById('test').checked);
+    });
+</script>
+{% endblock %}

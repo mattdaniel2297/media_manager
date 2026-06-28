@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Resolve Conflicts</h1>
+
+{% if error %}
+<div class="error-box">{{ error }}</div>
+{% endif %}
+
+<form method="POST" action="/conflicts" id="conflicts-form">
+    <div class="card">
+        <h2>Photo Stream Directory</h2>
+        <label for="directory">Local photo stream sync folder</label>
+        <input type="text" id="directory" name="directory" placeholder="/home/you/PhotoStream" autocomplete="off">
+        <p class="hint">
+            Resilio conflict files match: <code>&lt;uuid&gt; (…conflicted copy…).ext</code><br>
+            The newer version is always kept; the older is discarded.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Options</h2>
+        <div class="checkbox-group">
+            <label class="checkbox-row">
+                <input type="checkbox" name="apply" id="apply">
+                <span>Apply changes<small>Uncheck to preview only</small></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="submit">Scan &amp; Resolve</button>
+    </div>
+</form>
+
+<script>
+    const KEY = 'mm_conflicts_dir';
+    document.getElementById('directory').value = localStorage.getItem(KEY) || '';
+    document.getElementById('conflicts-form').addEventListener('submit', () => {
+        localStorage.setItem(KEY, document.getElementById('directory').value);
+    });
+</script>
+{% endblock %}

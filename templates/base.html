@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Manager</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        nav .brand {
+            font-weight: 600;
+            color: #e94560;
+            padding: 1rem 1rem 1rem 0;
+            margin-right: 1rem;
+            border-right: 1px solid #0f3460;
+        }
+
+        nav a {
+            color: #a0a0b0;
+            text-decoration: none;
+            padding: 1rem 0.75rem;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        nav a:hover { color: #e0e0e0; }
+        nav a.active { color: #e94560; border-bottom-color: #e94560; }
+
+        main {
+            max-width: 760px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .card h2 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6080a0;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            color: #a0a0b0;
+            margin-bottom: 0.35rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: #0d1b2a;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            font-family: monospace;
+            margin-bottom: 1rem;
+            transition: border-color 0.15s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.6rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .checkbox-row:hover { background: #0f3460; }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: #e94560;
+            cursor: pointer;
+        }
+
+        .checkbox-row span {
+            font-size: 0.875rem;
+            color: #c0c0d0;
+            user-select: none;
+        }
+
+        .checkbox-row small {
+            display: block;
+            font-size: 0.75rem;
+            color: #6080a0;
+        }
+
+        .actions {
+            margin-top: 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        button[type="submit"] {
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 0.65rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        button[type="submit"]:hover { background: #c73652; }
+
+        .error-box {
+            background: #3d1a1a;
+            border: 1px solid #7a2020;
+            border-radius: 5px;
+            color: #ff8080;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+        }
+
+        pre {
+            background: #0d1b2a;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: #a0c0a0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #6080a0;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .back-link:hover { color: #e0e0e0; }
+
+        .hint {
+            font-size: 0.78rem;
+            color: #506070;
+            margin-top: -0.75rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <span class="brand">Media Manager</span>
+        <a href="/import" class="{{ 'active' if request.path == '/import' or request.path == '/' else '' }}">Import</a>
+        <a href="/sync" class="{{ 'active' if request.path == '/sync' else '' }}">Sync Library</a>
+        <a href="/conflicts" class="{{ 'active' if request.path == '/conflicts' else '' }}">Resolve Conflicts</a>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

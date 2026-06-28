@@ -6,13 +6,14 @@ from cksum import get_file_cksum
 from UUID_namer import is_file_valid_uuid, process_file
 from catalog_utils import create_db
 from metadata_tools import get_create_time, get_modified_time, add_copyright_metadata
+from watermark_utils import apply_watermark
 
 
 def update_catalog_item(file):
     None
 
 
-def import_media(src, dest, catalog=False, is_remove=True, norename=False, is_copyright=False):
+def import_media(src, dest, catalog=False, is_remove=True, norename=False, is_copyright=False, is_watermark=False):
     print(f"Starting import of {src} to {dest} with remove {is_remove}")
     db_loc = os.path.join(dest, "catalog.db")
     if not os.path.exists(db_loc):
@@ -45,7 +46,6 @@ def import_media(src, dest, catalog=False, is_remove=True, norename=False, is_co
                 uuid_name = process_file(file, rename_source=False)
                 dest_dir = os.path.join(dest, created_year, created_month)
                 os.makedirs(dest_dir, exist_ok=True)
-                new_filename = filename
 
                 data = (uuid_name, filename, cksum, cksum, os.path.abspath(dest_dir), size_bytes, created_ts, modified_ts)
                 try:
@@ -55,18 +55,22 @@ def import_media(src, dest, catalog=False, is_remove=True, norename=False, is_co
                     print("failed to catalog likely duplicate item.", data)
                     continue
                 if norename:
-                    print(f"Norename copy {file} to {dest_dir}")
+                    new_filename = os.path.join(dest_dir, filename)
+                    print(f"Norename copy {file} to {new_filename}")
                     shutil.copy2(file, dest_dir)
                 else:
                     if is_file_valid_uuid(file):
-                        print(f"No need to rename, copy {file} to {dest_dir}")
+                        new_filename = os.path.join(dest_dir, filename)
+                        print(f"No need to rename, copy {file} to {new_filename}")
                         shutil.copy2(file, dest_dir)
                     else:
                         new_filename = os.path.join(dest_dir, uuid_name)
                         print(f"Rename copy {file} to {new_filename}")
-                        shutil.copy2(file, new_filename )
+                        shutil.copy2(file, new_filename)
                 if is_remove:
                     os.remove(file)
+                if is_watermark:
+                    apply_watermark(new_filename)
                 if is_copyright:
                     add_copyright_metadata(new_filename)
                     update_catalog_item(new_filename)
