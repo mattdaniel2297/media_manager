@@ -5,16 +5,15 @@ A local Flask app for importing, organising, and syncing a personal photo librar
 ## Directory structure
 
 ```
-~/Pictures/
-└── Media Manager/          ← created automatically on first run
-    ├── Photo In/           ← Resilio 2-way sync with phone DCIM/Camera
-    └── Photo Stream/       ← processed library (DigiKam scans here)
-        ├── catalog.db
-        ├── 2025/
-        │   └── 06/
-        │       └── <uuid>.jpg
-        └── 2026/
-            └── ...
+~/Media Manager/            ← created automatically on first run
+├── Photo In/               ← Resilio 2-way sync with phone DCIM/Camera
+└── Photo Stream/           ← processed library (DigiKam scans here)
+    ├── catalog.db
+    ├── 2025/
+    │   └── 06/
+    │       └── <uuid>.jpg
+    └── 2026/
+        └── ...
 ```
 
 ## Workflow overview

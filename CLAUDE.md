@@ -30,8 +30,8 @@ is called before `add_copyright_metadata()` so that pyexiv2 has the final word o
 ## Directory structure
 The app creates these on startup if they don't exist:
 ```
-~/Pictures/Media Manager/Photo In/       ← Resilio 2-way with phone DCIM/Camera
-~/Pictures/Media Manager/Photo Stream/   ← processed library; catalog.db lives here
+~/Media Manager/Photo In/       ← Resilio 2-way with phone DCIM/Camera
+~/Media Manager/Photo Stream/   ← processed library; catalog.db lives here
 ```
 Import moves files from Photo In → Photo Stream (UUID rename, YYYY/MM/ structure).
 Deleting from Photo In propagates back to phone DCIM via Resilio.

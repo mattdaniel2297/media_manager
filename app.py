@@ -12,7 +12,7 @@ from sync_lib import sync
 app = Flask(__name__)
 
 _HOME = os.path.expanduser('~')
-MEDIA_MANAGER_DIR = os.path.join(_HOME, 'Pictures', 'Media Manager')
+MEDIA_MANAGER_DIR = os.path.join(_HOME, 'Media Manager')
 PHOTO_IN_DIR = os.path.join(MEDIA_MANAGER_DIR, 'Photo In')
 PHOTO_STREAM_DIR = os.path.join(MEDIA_MANAGER_DIR, 'Photo Stream')
 
