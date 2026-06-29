@@ -12,6 +12,8 @@ iptc_copyright_key = 'Iptc.Application2.Copyright'
 IPTC_CREDIT_KEYS = ('Iptc.Application2.Credit', 'Iptc.Application2.Source')
 DATE_KEYS = ('Exif.Image.DateTime', 'Exif.Photo.DateTimeOriginal', 'Exif.Photo.DateTimeDigitized')
 COPYRIGHT_NAME = "Matt Daniel"
+DIGIKAM_TAGS_KEY = 'Xmp.digiKam.TagsList'
+PHOTO_STREAM_TAG = 'Photo Stream'
 
 
 # def get_create_time_from_dir_structure(file):
@@ -92,6 +94,22 @@ def add_copyright_metadata(file):
        metadata['Exif.Image.DateTime'] =mod_dt
        metadata.write()
     return modify
+
+
+def add_photo_stream_tag(file):
+    metadata = pyexiv2.ImageMetadata(file)
+    metadata.read()
+    if DIGIKAM_TAGS_KEY in metadata.xmp_keys:
+        current = metadata[DIGIKAM_TAGS_KEY].value
+        tags = list(current) if isinstance(current, list) else ([current] if current else [])
+        if PHOTO_STREAM_TAG in tags:
+            return False
+        tags.append(PHOTO_STREAM_TAG)
+    else:
+        tags = [PHOTO_STREAM_TAG]
+    metadata[DIGIKAM_TAGS_KEY] = pyexiv2.XmpTag(DIGIKAM_TAGS_KEY, tags)
+    metadata.write()
+    return True
 
 
 def get_tag_values(file, tag_key):

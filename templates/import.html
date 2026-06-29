@@ -9,16 +9,20 @@
 <form method="POST" action="/import" id="import-form">
     <div class="card">
         <h2>Paths</h2>
-        <label for="src">Source directory</label>
-        <input type="text" id="src" name="src" placeholder="/mnt/phone/DCIM" autocomplete="off">
-        <label for="dest">Destination (library) directory</label>
-        <input type="text" id="dest" name="dest" placeholder="/home/you/Photos" autocomplete="off">
-        <p class="hint">Paths are remembered in your browser for next time.</p>
+        <label for="src">Source — Photo In</label>
+        <input type="text" id="src" name="src" autocomplete="off">
+        <label for="dest">Destination — Photo Stream</label>
+        <input type="text" id="dest" name="dest" autocomplete="off">
+        <p class="hint">Defaults to <code>~/Pictures/Media Manager/</code>. Paths are remembered in your browser.</p>
     </div>
 
     <div class="card">
         <h2>Options</h2>
         <div class="checkbox-group">
+            <label class="checkbox-row">
+                <input type="checkbox" name="photo_stream" id="photo_stream">
+                <span>Tag as Photo Stream<small>Writes DigiKam XMP tag for sync</small></span>
+            </label>
             <label class="checkbox-row">
                 <input type="checkbox" name="copyright" id="copyright">
                 <span>Write copyright metadata<small>EXIF + IPTC tags</small></span>
@@ -29,7 +33,7 @@
             </label>
             <label class="checkbox-row">
                 <input type="checkbox" name="remove" id="remove">
-                <span>Remove from source<small>Move instead of copy</small></span>
+                <span>Move (delete from Photo In)<small>Resilio will clear phone DCIM</small></span>
             </label>
             <label class="checkbox-row">
                 <input type="checkbox" name="catalog" id="catalog">
@@ -48,29 +52,34 @@
 </form>
 
 <script>
+    const DEFAULT_SRC  = "{{ default_src }}";
+    const DEFAULT_DEST = "{{ default_dest }}";
+
     const KEYS = {
-        src: 'mm_import_src',
-        dest: 'mm_import_dest',
-        copyright: 'mm_import_copyright',
-        watermark: 'mm_import_watermark',
-        remove: 'mm_import_remove',
-        catalog: 'mm_import_catalog',
-        norename: 'mm_import_norename',
+        src:          'mm_import_src',
+        dest:         'mm_import_dest',
+        photo_stream: 'mm_import_photo_stream',
+        copyright:    'mm_import_copyright',
+        watermark:    'mm_import_watermark',
+        remove:       'mm_import_remove',
+        catalog:      'mm_import_catalog',
+        norename:     'mm_import_norename',
     };
 
-    // Restore saved values
-    document.getElementById('src').value = localStorage.getItem(KEYS.src) || '';
-    document.getElementById('dest').value = localStorage.getItem(KEYS.dest) || '';
-    ['copyright', 'watermark', 'remove', 'catalog', 'norename'].forEach(id => {
+    // Restore saved values, falling back to server-provided defaults
+    document.getElementById('src').value  = localStorage.getItem(KEYS.src)  || DEFAULT_SRC;
+    document.getElementById('dest').value = localStorage.getItem(KEYS.dest) || DEFAULT_DEST;
+
+    ['photo_stream', 'copyright', 'watermark', 'remove', 'catalog', 'norename'].forEach(id => {
         const saved = localStorage.getItem(KEYS[id]);
         if (saved !== null) document.getElementById(id).checked = saved === 'true';
     });
 
     // Save on submit
     document.getElementById('import-form').addEventListener('submit', () => {
-        localStorage.setItem(KEYS.src, document.getElementById('src').value);
+        localStorage.setItem(KEYS.src,  document.getElementById('src').value);
         localStorage.setItem(KEYS.dest, document.getElementById('dest').value);
-        ['copyright', 'watermark', 'remove', 'catalog', 'norename'].forEach(id => {
+        ['photo_stream', 'copyright', 'watermark', 'remove', 'catalog', 'norename'].forEach(id => {
             localStorage.setItem(KEYS[id], document.getElementById(id).checked);
         });
     });

@@ -27,10 +27,19 @@ is called before `add_copyright_metadata()` so that pyexiv2 has the final word o
 **Photo Stream sync uses a DigiKam XMP tag.** `sync_lib.py` looks for files tagged with
 `"Photo Stream"` in `Xmp.digiKam.TagsList`. This tag must be applied inside DigiKam.
 
+## Directory structure
+The app creates these on startup if they don't exist:
+```
+~/Pictures/Media Manager/Photo In/       ← Resilio 2-way with phone DCIM/Camera
+~/Pictures/Media Manager/Photo Stream/   ← processed library; catalog.db lives here
+```
+Import moves files from Photo In → Photo Stream (UUID rename, YYYY/MM/ structure).
+Deleting from Photo In propagates back to phone DCIM via Resilio.
+
 ## Resilio Sync integration (in progress)
-Two sync folders are planned:
-- `media_in/Camera` ← phone DCIM (one-way archive, Resilio handles transport)
-- `photo_stream/` ↔ phone PhotoStream (two-way, conflict resolution via `conflict_resolver.py`)
+Two sync folders:
+- `Photo In/` ↔ phone DCIM/Camera (2-way; deletion propagates to clear phone)
+- `Photo Stream/` ↔ phone PhotoStream (2-way, conflict resolution via `conflict_resolver.py`)
 
 Resilio conflict files are named: `<uuid> (<device>'s conflicted copy YYYY-MM-DD HH-MM-SS).<ext>`
 The resolver keeps whichever version has the later modification timestamp.

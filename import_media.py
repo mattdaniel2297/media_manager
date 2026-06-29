@@ -5,7 +5,7 @@ import fnmatch
 from cksum import get_file_cksum
 from UUID_namer import is_file_valid_uuid, process_file
 from catalog_utils import create_db
-from metadata_tools import get_create_time, get_modified_time, add_copyright_metadata
+from metadata_tools import get_create_time, get_modified_time, add_copyright_metadata, add_photo_stream_tag
 from watermark_utils import apply_watermark
 
 
@@ -13,7 +13,7 @@ def update_catalog_item(file):
     None
 
 
-def import_media(src, dest, catalog=False, is_remove=True, norename=False, is_copyright=False, is_watermark=False):
+def import_media(src, dest, catalog=False, is_remove=True, norename=False, is_copyright=False, is_watermark=False, is_photo_stream=False):
     print(f"Starting import of {src} to {dest} with remove {is_remove}")
     db_loc = os.path.join(dest, "catalog.db")
     if not os.path.exists(db_loc):
@@ -74,6 +74,8 @@ def import_media(src, dest, catalog=False, is_remove=True, norename=False, is_co
                 if is_copyright:
                     add_copyright_metadata(new_filename)
                     update_catalog_item(new_filename)
+                if is_photo_stream:
+                    add_photo_stream_tag(new_filename)
                 
 
     con.commit()

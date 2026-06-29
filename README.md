@@ -2,19 +2,37 @@
 
 A local Flask app for importing, organising, and syncing a personal photo library.
 
+## Directory structure
+
+```
+~/Pictures/
+└── Media Manager/          ← created automatically on first run
+    ├── Photo In/           ← Resilio 2-way sync with phone DCIM/Camera
+    └── Photo Stream/       ← processed library (DigiKam scans here)
+        ├── catalog.db
+        ├── 2025/
+        │   └── 06/
+        │       └── <uuid>.jpg
+        └── 2026/
+            └── ...
+```
+
 ## Workflow overview
 
 ```
 Pixel phone
     │
     │  Resilio Sync (always-on, WiFi)
-    │  DCIM/Camera ──────────────────► media_in/Camera   (archive, one-way)
-    │  PhotoStream  ◄───────────────►  photo_stream/      (2-way, conflict-resolved)
+    │  DCIM/Camera  ◄──────────────►  Photo In/       (2-way — delete from Photo In
+    │  PhotoStream  ◄───────────────►  Photo Stream/   propagates back to phone DCIM)
     │
     ▼
-[Flask app]
-    Import ──► ~/Pictures/YYYY/MM/<uuid>.jpg   (UUID rename + copyright metadata + watermark)
-    Sync   ──► photo_stream/                   (DigiKam "Photo Stream" tag → export folder)
+[Flask app — Import]
+    Photo In/ ──► Photo Stream/YYYY/MM/<uuid>.jpg
+                  + UUID rename
+                  + EXIF/IPTC copyright metadata
+                  + optional watermark
+                  + optional DigiKam "Photo Stream" XMP tag
 ```
 
 ## Running

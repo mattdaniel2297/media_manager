@@ -11,10 +11,22 @@ from sync_lib import sync
 
 app = Flask(__name__)
 
+_HOME = os.path.expanduser('~')
+MEDIA_MANAGER_DIR = os.path.join(_HOME, 'Pictures', 'Media Manager')
+PHOTO_IN_DIR = os.path.join(MEDIA_MANAGER_DIR, 'Photo In')
+PHOTO_STREAM_DIR = os.path.join(MEDIA_MANAGER_DIR, 'Photo Stream')
+
+
+def ensure_dirs():
+    os.makedirs(PHOTO_IN_DIR, exist_ok=True)
+    os.makedirs(PHOTO_STREAM_DIR, exist_ok=True)
+
 
 @app.route('/')
 def index():
-    return render_template('import.html')
+    return render_template('import.html',
+                           default_src=PHOTO_IN_DIR,
+                           default_dest=PHOTO_STREAM_DIR)
 
 
 @app.route('/import', methods=['GET', 'POST'])
@@ -27,16 +39,20 @@ def import_page():
         is_norename = 'norename' in request.form
         is_copyright = 'copyright' in request.form
         is_watermark = 'watermark' in request.form
+        is_photo_stream = 'photo_stream' in request.form
 
         if not os.path.isdir(src):
-            return render_template('import.html', error=f"Source path not found: {src}")
+            return render_template('import.html', error=f"Source path not found: {src}",
+                                   default_src=PHOTO_IN_DIR, default_dest=PHOTO_STREAM_DIR)
         if not os.path.isdir(dest):
-            return render_template('import.html', error=f"Destination path not found: {dest}")
+            return render_template('import.html', error=f"Destination path not found: {dest}",
+                                   default_src=PHOTO_IN_DIR, default_dest=PHOTO_STREAM_DIR)
 
         db_loc = os.path.join(dest, 'catalog.db')
         if not os.path.exists(db_loc) and not is_catalog:
             return render_template('import.html',
-                                   error="No catalog found at destination. Check 'Create catalog' to create one.")
+                                   error="No catalog found at destination. Check 'Create catalog' to create one.",
+                                   default_src=PHOTO_IN_DIR, default_dest=PHOTO_STREAM_DIR)
 
         output = io.StringIO()
         error = None
@@ -49,13 +65,16 @@ def import_page():
                              catalog=is_catalog,
                              norename=is_norename,
                              is_copyright=is_copyright,
-                             is_watermark=is_watermark)
+                             is_watermark=is_watermark,
+                             is_photo_stream=is_photo_stream)
         except Exception as e:
             error = str(e)
 
         return render_template('result.html', output=output.getvalue(), error=error, back='/import')
 
-    return render_template('import.html')
+    return render_template('import.html',
+                           default_src=PHOTO_IN_DIR,
+                           default_dest=PHOTO_STREAM_DIR)
 
 
 @app.route('/sync', methods=['GET', 'POST'])
@@ -97,8 +116,10 @@ def conflicts_page():
         output = f"[{mode}] {count} conflict(s) found\n\n" + '\n'.join(results)
         return render_template('result.html', output=output, back='/conflicts')
 
-    return render_template('conflicts.html')
+    return render_template('conflicts.html',
+                           default_dir=PHOTO_STREAM_DIR)
 
 
 if __name__ == '__main__':
+    ensure_dirs()
     app.run(debug=True, host='127.0.0.1', port=5000)

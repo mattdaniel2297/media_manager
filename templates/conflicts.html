@@ -34,7 +34,7 @@
 
 <script>
     const KEY = 'mm_conflicts_dir';
-    document.getElementById('directory').value = localStorage.getItem(KEY) || '';
+    document.getElementById('directory').value = localStorage.getItem(KEY) || "{{ default_dir }}";
     document.getElementById('conflicts-form').addEventListener('submit', () => {
         localStorage.setItem(KEY, document.getElementById('directory').value);
     });
